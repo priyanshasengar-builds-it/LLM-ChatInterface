@@ -18,11 +18,11 @@ const HIGHLIGHTS = [
   "A custom Node server runs Next.js and a WebSocket server together on one port.",
   "AI responses stream token-by-token, pushed live to the browser over the socket.",
   "TanStack Query drives send / loading / error states; a reducer assembles the stream.",
-  "Provider-agnostic backend (OpenAI-compatible) — swap models in a single file.",
+  "Provider-agnostic backend (OpenAI-compatible); models swap in a single file.",
 ];
 
 export const metadata: Metadata = {
-  title: "LLM Chat — Real-time streaming chat (Next.js · WebSockets)",
+  title: "LLM Chat: real-time streaming chat (Next.js, WebSockets)",
   description:
     "A single-page chat interface that streams AI responses token-by-token over WebSockets. Built with Next.js, TypeScript, TanStack Query, and a custom Node server.",
 };
@@ -34,9 +34,8 @@ export default function Home() {
         <span className="landing__eyebrow">Full-stack · Real-time</span>
         <h1 className="landing__title">LLM Chat Interface</h1>
         <p className="landing__desc">
-          A single-page chat application that streams AI responses
-          token-by-token over WebSockets — built to showcase real-time
-          architecture and clean state handling, not just the UI.
+          A single-page chat app that streams AI responses token-by-token over
+          WebSockets.
         </p>
 
         <ul className="badges" aria-label="Tech stack">
