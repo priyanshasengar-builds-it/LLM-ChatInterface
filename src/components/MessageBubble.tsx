@@ -2,8 +2,8 @@
 
 import type { ChatMessage } from "@/lib/types";
 
-// Avatar initials. Change USER_INITIALS to your own (e.g. "PS").
-const USER_INITIALS = "U";
+// Avatar initials.
+const USER_INITIALS = "PS";
 const AI_INITIALS = "AI";
 
 export function MessageBubble({ message }: { message: ChatMessage }) {

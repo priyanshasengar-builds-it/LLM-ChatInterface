@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useChatSocket } from "@/hooks/useChatSocket";
 import { ChatInput } from "./ChatInput";
 import { MessageList } from "./MessageList";
@@ -17,7 +18,11 @@ export function Chat() {
   return (
     <main className="chat">
       <header className="chat__header">
-        <h1>LLM Chat</h1>
+        <h1>
+          <Link href="/" className="chat__home">
+            LLM Chat
+          </Link>
+        </h1>
         <span className={`status status--${status}`}>
           <span className="status__dot" aria-hidden />
           {STATUS_LABEL[status]}
