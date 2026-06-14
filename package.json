@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "author": "Priyansha Sengar",
+  "license": "MIT",
   "engines": {
     "node": ">=20"
   },

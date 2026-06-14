@@ -3,6 +3,8 @@ import Link from "next/link";
 
 const REPO_URL =
   "https://github.com/priyanshasengar-builds-it/LLM-ChatInterface";
+const LINKEDIN_URL =
+  "https://www.linkedin.com/in/priyansha-sengar-8b00b4145/";
 
 const TECH = [
   "Next.js 15",
@@ -70,7 +72,21 @@ export default function Home() {
         </div>
       </article>
 
-      <p className="landing__footer">Built by Priyansha Sengar</p>
+      <footer className="landing__footer">
+        <span>Built by Priyansha Sengar</span>
+        <span className="landing__footer-sep" aria-hidden>
+          ·
+        </span>
+        <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+        <span className="landing__footer-sep" aria-hidden>
+          ·
+        </span>
+        <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">
+          LinkedIn
+        </a>
+      </footer>
     </main>
   );
 }
