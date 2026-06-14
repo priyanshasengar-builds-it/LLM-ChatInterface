@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch server.ts",
     "build": "next build",
@@ -11,21 +14,21 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@next/env": "^15.1.6",
     "@tanstack/react-query": "^5.66.0",
+    "cross-env": "^7.0.3",
     "next": "^15.1.6",
     "openai": "^4.104.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tsx": "^4.19.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@next/env": "^15.1.6",
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
     "@types/ws": "^8.5.14",
-    "cross-env": "^7.0.3",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }
