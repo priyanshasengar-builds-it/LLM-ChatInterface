@@ -1,17 +1,26 @@
 "use client";
 
-import { useState, type FormEvent, type KeyboardEvent } from "react";
+import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 
 interface Props {
   onSend: (content: string) => void;
+  /** True when sending isn't currently possible (disconnected or responding). */
   disabled: boolean;
 }
 
 export function ChatInput({ onSend, disabled }: Props) {
   const [value, setValue] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // The button is always enabled and always looks active — no `disabled`
+  // attribute and no greyed-out state. We just handle the edge cases on submit.
   const submit = () => {
-    if (disabled || !value.trim()) return;
+    if (value.trim().length === 0) {
+      // Nothing to send — guide the user to the input instead of failing silently.
+      textareaRef.current?.focus();
+      return;
+    }
+    if (disabled) return; // disconnected or already responding — safely no-op
     onSend(value);
     setValue("");
   };
@@ -32,6 +41,7 @@ export function ChatInput({ onSend, disabled }: Props) {
   return (
     <form className="composer" onSubmit={handleSubmit}>
       <textarea
+        ref={textareaRef}
         className="composer__input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -40,11 +50,7 @@ export function ChatInput({ onSend, disabled }: Props) {
         rows={1}
         aria-label="Message"
       />
-      <button
-        type="submit"
-        className="composer__send"
-        disabled={disabled || !value.trim()}
-      >
+      <button type="submit" className="composer__send">
         Send
       </button>
     </form>

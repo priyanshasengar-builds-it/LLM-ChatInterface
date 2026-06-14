@@ -1,17 +1,22 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import type { WebSocket, WebSocketServer } from "ws";
 import type { ClientMessage, ServerMessage } from "../lib/types";
 
-const MODEL = "claude-opus-4-8";
+// Groq exposes an OpenAI-compatible API, so we use the OpenAI SDK pointed at
+// Groq's base URL. Swap MODEL / baseURL / key to move to another provider.
+const MODEL = "llama-3.3-70b-versatile";
 const MAX_TOKENS = 4096; // Chat replies are short and latency-sensitive; keep this modest.
 const SYSTEM_PROMPT =
   "You are a helpful, friendly assistant. Answer clearly and concisely.";
 
-// Lazily constructed so the Anthropic client picks up ANTHROPIC_API_KEY after
-// the server has loaded environment files (see server.ts).
-let client: Anthropic | null = null;
-function getClient(): Anthropic {
-  return (client ??= new Anthropic());
+// Lazily constructed so the client picks up GROQ_API_KEY after the server has
+// loaded environment files (see server.ts).
+let client: OpenAI | null = null;
+function getClient(): OpenAI {
+  return (client ??= new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+  }));
 }
 
 function send(ws: WebSocket, message: ServerMessage): void {
@@ -22,8 +27,10 @@ function send(ws: WebSocket, message: ServerMessage): void {
 
 export function attachChatHandler(wss: WebSocketServer): void {
   wss.on("connection", (ws: WebSocket) => {
-    // Per-connection conversation history gives Claude context across turns.
-    const history: Anthropic.MessageParam[] = [];
+    // Per-connection conversation history gives the model context across turns.
+    const history: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+      { role: "system", content: SYSTEM_PROMPT },
+    ];
     // Guard so one connection only runs one generation at a time.
     let busy = false;
 
@@ -53,32 +60,31 @@ export function attachChatHandler(wss: WebSocketServer): void {
       history.push({ role: "user", content: msg.content });
 
       try {
-        const stream = getClient().messages.stream({
+        const stream = await getClient().chat.completions.create({
           model: MODEL,
           max_tokens: MAX_TOKENS,
-          system: SYSTEM_PROMPT,
           messages: history,
+          stream: true,
         });
 
         // Forward each token delta to the browser as it arrives.
-        stream.on("text", (delta) => {
-          send(ws, { type: "chunk", id: msg.id, content: delta });
-        });
+        let answer = "";
+        for await (const chunk of stream) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) {
+            answer += delta;
+            send(ws, { type: "chunk", id: msg.id, content: delta });
+          }
+        }
 
-        const final = await stream.finalMessage();
-        const text = final.content
-          .filter((block): block is Anthropic.TextBlock => block.type === "text")
-          .map((block) => block.text)
-          .join("");
-
-        history.push({ role: "assistant", content: text });
+        history.push({ role: "assistant", content: answer });
         send(ws, { type: "done", id: msg.id });
       } catch (err) {
         // Roll back the user turn so the failed exchange doesn't poison context.
         history.pop();
         const message =
-          err instanceof Anthropic.APIError
-            ? `Anthropic API error (${err.status ?? "unknown"}): ${err.message}`
+          err instanceof OpenAI.APIError
+            ? `Groq API error (${err.status ?? "unknown"}): ${err.message}`
             : "Something went wrong while generating a response.";
         console.error("[chat] generation failed:", err);
         send(ws, { type: "error", id: msg.id, message });
